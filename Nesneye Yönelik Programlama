@@ -1,0 +1,77 @@
+#include <iostream>
+#include <cmath>
+#define _USE_MATH_DEFINES // M_PI tanımlayıcısını etkinleştirmek için eklenmiştir
+
+using std::cout;
+using std::endl;
+
+// --- Temel Sınıf (Base Class) ---
+class Sekil {
+public:
+   // Sanal yıkıcı (Virtual Destructor) - Polimorfizm için şarttır
+   virtual ~Sekil() {}
+
+   // Saf sanal fonksiyonlar (Pure Virtual Functions)
+   virtual double alan() const = 0;
+   virtual double cevre() const = 0;
+   virtual void yazdir() const = 0;
+};
+
+// --- Dikdörtgen Sınıfı ---
+class Dikdortgen : public Sekil {
+public:
+   Dikdortgen(double e, double b) : en{ e }, boy{ b } {}
+
+   double alan() const override { return en * boy; }
+   double cevre() const override { return 2 * (en + boy); }
+   void yazdir() const override {
+       cout << "Dikdortgen -> Alan: " << alan() << ", Cevre: " << cevre() << endl;
+   }
+protected:
+   double en, boy;
+};
+
+// --- Kare Sınıfı (Dikdörtgen'den türetilmiştir) ---
+class Kare : public Dikdortgen {
+public:
+   // Kare bir dikdörtgendir, sadece en ve boy eşittir
+   Kare(double kenar) : Dikdortgen(kenar, kenar) {}
+
+   void yazdir() const override {
+       cout << "Kare -> Alan: " << alan() << ", Cevre: " << cevre() << endl;
+   }
+};
+
+// --- Cember Sınıfı ---
+class Cember : public Sekil {
+public:
+   Cember(double r) : yari_cap{ r } {}
+   
+   double alan() const override { return M_PI * yari_cap * yari_cap; }
+   double cevre() const override { return 2 * M_PI * yari_cap; }
+   void yazdir() const override {
+       cout << "Cember -> Alan: " << alan() << ", Cevre: " << cevre() << endl;
+   }
+private:
+   double yari_cap;
+   double M_PI = 3.14;
+};
+
+// --- Main (Polimorfizm Gösterimi) ---
+int main() {
+   // Polimorfizm: Temel sınıf göstericisiyle türetilmiş sınıfları yönetmek
+   Sekil* sekiller[3];
+   sekiller[0] = new Dikdortgen(5, 10);
+   sekiller[1] = new Kare(4);
+   sekiller[2] = new Cember(3);
+
+   cout << "--- Sekil Bilgileri ---" << endl;
+   for (int i = 0; i < 3; ++i) {
+       sekiller[i]->yazdir(); // Doğru metodun çağrılması polimorfizmdir
+   }
+
+   // Belleği temizle
+   for (int i = 0; i < 3; ++i) delete sekiller[i];
+
+   return 0;
+}
