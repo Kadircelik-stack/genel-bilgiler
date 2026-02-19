@@ -1,0 +1,105 @@
+import java.util.Scanner;
+import java.util.InputMismatchException;
+
+// --- 1. KATMAN: UYGULAMA (IMPLEMENTATION) ---
+interface MedyaFormat {
+    void dosyaAc(String dosyaAdi);
+}
+
+class Mp3Format implements MedyaFormat {
+    @Override
+    public void dosyaAc(String dosyaAdi) {
+        System.out.println("MP3 secildi ve ses olarak oynatiliyor: " + dosyaAdi);
+    }
+}
+
+class Mp4Format implements MedyaFormat {
+    @Override
+    public void dosyaAc(String dosyaAdi) {
+        System.out.println("MP4 secildi ve video olarak oynatiliyor: " + dosyaAdi);
+    }
+}
+
+// --- 2. KATMAN: SOYUTLAMA (ABSTRACTION) ---
+abstract class OynatmaKontrolu {
+    protected MedyaFormat format; // KÖPRÜ
+
+    protected OynatmaKontrolu(MedyaFormat format) {
+        this.format = format;
+    }
+
+    abstract void baslat(String dosya);
+}
+
+class StandartPanel extends OynatmaKontrolu {
+    public StandartPanel(MedyaFormat format) { 
+        super(format); 
+    }
+
+    @Override
+    public void baslat(String dosya) {
+        System.out.print("[Standart Panel] ");
+        format.dosyaAc(dosya);
+    }
+}
+
+class SesliKontrol extends OynatmaKontrolu {
+    public SesliKontrol(MedyaFormat format) { 
+        super(format); 
+    }
+
+    @Override
+    public void baslat(String dosya) {
+        System.out.print("[Sesli Komut] 'Oynat' dendi... ");
+        format.dosyaAc(dosya);
+    }
+}
+
+// --- 3. ANA PROGRAM (GELİŞTİRİLMİŞ KULLANICI ETKİLEŞİMİ) ---
+public class Main {
+    public static void main(String[] args) {
+        // Scanner nesnesini 'try-with-resources' ile açarak otomatik kapanmasını sağlıyoruz
+        try (Scanner klavye = new Scanner(System.in)) {
+            System.out.println("=== Gelismis Medya Oynatici Sistemi ===");
+            
+            // 1. Adım: Dosya adını al
+            System.out.print("Oynatilacak dosya adini giriniz: ");
+            String dosyaAdi = klavye.nextLine();
+
+            // 2. Adım: Güvenli Format Seçimi
+            MedyaFormat secilenFormat = null;
+            while (secilenFormat == null) {
+                System.out.println("\nMedya Formatini Seciniz (1-MP3, 2-MP4):");
+                try {
+                    int formatSecim = Integer.parseInt(klavye.nextLine()); // Buffer hatasını önlemek için line-parsing
+                    if (formatSecim == 1) secilenFormat = new Mp3Format();
+                    else if (formatSecim == 2) secilenFormat = new Mp4Format();
+                    else System.out.println("Hata: Lutfen sadece 1 veya 2 giriniz!");
+                } catch (NumberFormatException e) {
+                    System.out.println("Hata: Gecersiz karakter girdiniz. Lutfen sayi giriniz!");
+                }
+            }
+
+            // 3. Adım: Güvenli Kontrol Paneli Seçimi
+            OynatmaKontrolu kontrol = null;
+            while (kontrol == null) {
+                System.out.println("\nKontrol Yontemini Seciniz (1-Standart, 2-Sesli):");
+                try {
+                    int kontrolSecim = Integer.parseInt(klavye.nextLine());
+                    if (kontrolSecim == 1) kontrol = new StandartPanel(secilenFormat);
+                    else if (kontrolSecim == 2) kontrol = new SesliKontrol(secilenFormat);
+                    else System.out.println("Hata: Lutfen sadece 1 veya 2 giriniz!");
+                } catch (NumberFormatException e) {
+                    System.out.println("Hata: Gecersiz karakter girdiniz. Lutfen sayi giriniz!");
+                }
+            }
+
+            // 4. Adım: Sistemi Başlat
+            System.out.println("\n--- Sistem Baslatiliyor ---");
+            kontrol.baslat(dosyaAdi);
+            
+        } catch (Exception e) {
+            System.out.println("Beklenmedik bir hata oluştu: " + e.getMessage());
+        }
+    }
+}
