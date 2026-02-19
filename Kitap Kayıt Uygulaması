@@ -1,0 +1,90 @@
+package javaapplication17;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class KitapKayitUygulamasi {
+    public static void main(String[] args) {
+        // Ana pencere kurulumu
+        JFrame frame = new JFrame("Kitap Kayıt Uygulaması");
+        frame.setSize(500, 450);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout(10, 10)); // Bölgeli yerleşim [cite: 33, 42]
+
+        // --- GİRİŞ PANELİ (Üst Kısım) ---
+        JPanel pnlGiris = new JPanel(new GridLayout(6, 2, 5, 5)); // Izgara yerleşim [cite: 66, 76]
+        
+        JTextField txtKitapAdı = new JTextField(); // [cite: 185]
+        JTextField txtYazar = new JTextField();    // [cite: 185]
+        
+        String[] turler = {"Bilim Kurgu", "Roman", "Tarih", "Eğitim", "Polisiye"};
+        JComboBox<String> cbTur = new JComboBox<>(turler); // [cite: 186]
+
+        JRadioButton rOkundu = new JRadioButton("Okundu"); // [cite: 187]
+        JRadioButton rOkunmadi = new JRadioButton("Okunmadı", true); // Varsayılan seçim [cite: 189]
+        ButtonGroup grupDurum = new ButtonGroup(); // Tekli seçim için 
+        grupDurum.add(rOkundu);
+        grupDurum.add(rOkunmadi);
+
+        JButton btnEkle = new JButton("Listeye Ekle"); // [cite: 188]
+        JButton btnSil = new JButton("Seçileni Sil");  // [cite: 190]
+
+        // Bileşenleri panele ekleme
+        pnlGiris.add(new JLabel(" Kitap Adı:")); pnlGiris.add(txtKitapAdı);
+        pnlGiris.add(new JLabel(" Yazar:")); pnlGiris.add(txtYazar);
+        pnlGiris.add(new JLabel(" Tür:")); pnlGiris.add(cbTur);
+        pnlGiris.add(new JLabel(" Durum:"));
+        JPanel pnlRadio = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        pnlRadio.add(rOkundu); pnlRadio.add(rOkunmadi);
+        pnlGiris.add(pnlRadio);
+        pnlGiris.add(btnEkle);
+        pnlGiris.add(btnSil);
+
+        // --- LİSTE PANELİ (Alt Kısım) ---
+        DefaultListModel<String> model = new DefaultListModel<>(); // [cite: 118, 143]
+        JList<String> list = new JList<>(model);
+        JScrollPane scrollPane = new JScrollPane(list); // Liste uzun olursa kaydırma çubuğu için
+
+        // --- BUTON AKSİYONLARI ---
+        
+        // Ekleme İşlemi
+        btnEkle.addActionListener(e -> {
+            // Boş veri kontrolü 
+            if (txtKitapAdı.getText().trim().isEmpty() || txtYazar.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Lütfen tüm alanları doldurun!", "Uyarı", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // Verileri alma
+            String kitap = txtKitapAdı.getText();
+            String yazar = txtYazar.getText();
+            String tur = cbTur.getSelectedItem().toString();
+            String durum = rOkundu.isSelected() ? "Okundu" : "Okunmadı"; // [cite: 114, 174]
+
+            // Formatlı satır oluşturma [cite: 194, 195]
+            String satir = String.format("%s - %s - %s - %s", kitap, yazar, tur, durum);
+            model.addElement(satir); // Listeye ekle [cite: 122, 137]
+
+            // Formu temizle
+            txtKitapAdı.setText("");
+            txtYazar.setText("");
+            rOkunmadi.setSelected(true);
+        });
+
+        // Silme İşlemi [cite: 139, 155, 190]
+        btnSil.addActionListener(e -> {
+            int seciliIndex = list.getSelectedIndex();
+            if (seciliIndex != -1) {
+                model.remove(seciliIndex);
+            } else {
+                JOptionPane.showMessageDialog(frame, "Lütfen silinecek bir kitap seçin.");
+            }
+        });
+
+        // Ana pencereye panelleri ekleme
+        frame.add(pnlGiris, BorderLayout.NORTH);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        frame.setVisible(true);
+    }
+}
