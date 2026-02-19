@@ -1,0 +1,130 @@
+package javaapplication15;
+
+import javax.swing.*; // Hata burada düzeltildi: 'port' yerine 'import' yazıldı.
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+public class OgrenciSistemi extends JFrame {
+
+    // Bileşenler
+    private JTextField txtOgrNo, txtAdSoyad;
+    private JSpinner dateSpinner;
+    private JRadioButton rbErkek, rbKadin;
+    private ButtonGroup cinsiyetGrubu;
+    private JComboBox<String> cbBolum;
+    private JTable tablo;
+    private DefaultTableModel model;
+
+    public OgrenciSistemi() {
+        setTitle("Öğrenci Kayıt Sistemi");
+        setSize(700, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
+
+        // --- GİRİŞ PANELİ (SOL TARAF) ---
+        JPanel pnlGiris = new JPanel(new GridLayout(7, 2, 5, 5));
+        pnlGiris.setBorder(BorderFactory.createTitledBorder("Öğrenci Bilgileri"));
+
+        pnlGiris.add(new JLabel("Öğrenci No:"));
+        txtOgrNo = new JTextField();
+        pnlGiris.add(txtOgrNo);
+
+        pnlGiris.add(new JLabel("Ad Soyad:"));
+        txtAdSoyad = new JTextField();
+        pnlGiris.add(txtAdSoyad);
+
+        pnlGiris.add(new JLabel("Doğum Tarihi:"));
+        // JSpinner ve SpinnerDateModel kurulumu
+        Date bugun = new Date();
+        SpinnerDateModel dateModel = new SpinnerDateModel(bugun, null, null, Calendar.DAY_OF_MONTH);
+        dateSpinner = new JSpinner(dateModel);
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(dateSpinner, "dd/MM/yyyy");
+        dateSpinner.setEditor(editor);
+        pnlGiris.add(dateSpinner);
+
+        pnlGiris.add(new JLabel("Cinsiyet:"));
+        JPanel pnlCinsiyet = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        rbErkek = new JRadioButton("Erkek");
+        rbKadin = new JRadioButton("Kadın");
+        cinsiyetGrubu = new ButtonGroup();
+        cinsiyetGrubu.add(rbErkek);
+        cinsiyetGrubu.add(rbKadin);
+        pnlCinsiyet.add(rbErkek);
+        pnlCinsiyet.add(rbKadin);
+        pnlGiris.add(pnlCinsiyet);
+
+        pnlGiris.add(new JLabel("Bölüm:"));
+        String[] bolumler = {"Yazılım Mühendisliği", "Bilgisayar Mühendisliği", "Tıp", "Hukuk"};
+        cbBolum = new JComboBox<>(bolumler);
+        pnlGiris.add(cbBolum);
+
+        JButton btnEkle = new JButton("Ekle");
+        JButton btnSil = new JButton("Sil");
+        pnlGiris.add(btnEkle);
+        pnlGiris.add(btnSil);
+
+        add(pnlGiris, BorderLayout.WEST);
+
+        // --- TABLO PANELİ (SAĞ TARAF) ---
+        String[] sutunlar = {"Ögr No", "Ad Soyad", "Doğum Tarihi", "Cinsiyet", "Bölüm"};
+        model = new DefaultTableModel(sutunlar, 0);
+        tablo = new JTable(model);
+        add(new JScrollPane(tablo), BorderLayout.CENTER);
+
+        // --- BUTON OLAYLARI ---
+
+        // EKLE BUTONU
+        btnEkle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String no = txtOgrNo.getText();
+                String ad = txtAdSoyad.getText();
+                
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                String tarih = sdf.format(dateSpinner.getValue());
+                
+                String cinsiyet = rbErkek.isSelected() ? "Erkek" : (rbKadin.isSelected() ? "Kadın" : "-");
+                
+                String bolum = cbBolum.getSelectedItem().toString();
+
+                if (!no.isEmpty() && !ad.isEmpty()) {
+                    model.addRow(new Object[]{no, ad, tarih, cinsiyet, bolum});
+                    temizle();
+                } else {
+                    JOptionPane.showMessageDialog(null, "Lütfen No ve Ad alanlarını doldurun!");
+                }
+            }
+        });
+
+        // SİL BUTONU
+        btnSil.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int seciliSatir = tablo.getSelectedRow();
+                if (seciliSatir != -1) {
+                    model.removeRow(seciliSatir);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Silmek için bir satır seçiniz!");
+                }
+            }
+        });
+    }
+
+    private void temizle() {
+        txtOgrNo.setText("");
+        txtAdSoyad.setText("");
+        cinsiyetGrubu.clearSelection();
+        cbBolum.setSelectedIndex(0);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new OgrenciSistemi().setVisible(true);
+        });
+    }
+}
