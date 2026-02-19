@@ -1,0 +1,61 @@
+#include<iostream>
+#include<string>
+#include<map>
+struct dugum {
+	int veri;
+	dugum* sol;
+	dugum* sag;
+	dugum(int veri): veri(veri), sol(nullptr),sag(nullptr){}
+ };
+
+int derinlikbul(dugum* altdugum) {
+	if (altdugum == nullptr) {
+		return 0;
+	}
+	int solderinlik = derinlikbul(altdugum->sol);
+	int sagderinlik =  derinlikbul(altdugum->sag);
+	return 1 + std::max(solderinlik, sagderinlik);
+}
+int main() {
+	dugum* kok = new dugum(4);
+	kok->sol = new dugum(9);
+	kok->sol->sol = new dugum(10);
+	kok->sol->sol->sag = new dugum(11);
+	kok->sag = new dugum(1);
+	kok->sag->sag = new dugum(5);
+	kok->sag->sag->sol = new dugum(8);
+	kok->sag->sag->sag = new dugum(6);
+	kok->sag->sag->sag->sol = new dugum(7);
+
+	std::map<std::string, dugum*>altdugumler = {
+		{"Kok (4)",kok},
+		{"Dugum (9)",kok->sol},
+		{"Dugum(10)",kok->sol->sol},
+		{"Dugum (11)",kok->sol->sol->sag},
+		{"Dugum(1)",kok->sag},
+		{"Dugum(5)",kok->sag->sag},
+		{"Dugum(8)",kok->sag->sag->sol},
+		{"Dugum(6)",kok->sag->sag->sag},
+		{"Dugum(7)",kok->sag->sag->sag->sol}
+	};
+	int toplam_derinlik = 0;
+	std::cout << "Alt dugumlerin derinlikleri." << std::endl;
+	for (const auto& pair : altdugumler) {
+		std::string ad = pair.first;
+		dugum* altdugum = pair.second;
+		int derinlik = derinlikbul(altdugum);
+		std::cout << ad << " Alt dugumlerin derinligi:" << derinlik << std::endl;
+		toplam_derinlik += derinlik;
+	}
+	std::cout << "Tum alt dugumlerin derimliklerinin toplamı:" << toplam_derinlik << std::endl;
+	delete kok->sag->sag->sag->sol;
+	delete kok->sag->sag->sag;
+	delete kok->sag->sag->sol;
+	delete kok->sag->sag;
+	delete kok->sag;
+	delete kok->sol->sol->sag;
+	delete kok->sol->sol;
+	delete kok->sol;
+	delete kok;
+	return 0;
+}
