@@ -1,0 +1,112 @@
+package Siparis;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class Siparis {
+    // Zorunlu Alanlar
+    private final List<String> urunler;
+    private final String teslimatAdresi;
+    private final String odemeYontemi;
+
+    // Opsiyonel Alanlar
+    private final String faturaAdresi;
+    private final String indirimKuponu;
+    private final String siparisNotu;
+    private final boolean hediyePaketi;
+    private final String kargoTipi;
+
+    // DÜZELTME: Constructor içinde listeyi korumaya aldık
+    private Siparis(SiparisBuilder builder) {
+        this.urunler = Collections.unmodifiableList(new ArrayList<>(builder.urunler));
+        this.teslimatAdresi = builder.teslimatAdresi;
+        this.odemeYontemi = builder.odemeYontemi;
+        this.faturaAdresi = builder.faturaAdresi;
+        this.indirimKuponu = builder.indirimKuponu;
+        this.siparisNotu = builder.siparisNotu;
+        this.hediyePaketi = builder.hediyePaketi;
+        this.kargoTipi = builder.kargoTipi;
+    }
+
+    public static class SiparisBuilder {
+        private List<String> urunler;
+        private String teslimatAdresi;
+        private String odemeYontemi;
+        private String faturaAdresi;
+        private String indirimKuponu;
+        private String siparisNotu;
+        private boolean hediyePaketi = false;
+        private String kargoTipi = "Standart";
+
+        public SiparisBuilder(List<String> urunler, String teslimatAdresi, String odemeYontemi) {
+            this.urunler = urunler;
+            this.teslimatAdresi = teslimatAdresi;
+            this.odemeYontemi = odemeYontemi;
+        }
+
+        public SiparisBuilder faturaAdresi(String faturaAdresi) {
+            this.faturaAdresi = faturaAdresi;
+            return this;
+        }
+
+        public SiparisBuilder indirimKuponu(String indirimKuponu) {
+            this.indirimKuponu = indirimKuponu;
+            return this;
+        }
+
+        public SiparisBuilder siparisNotu(String siparisNotu) {
+            this.siparisNotu = siparisNotu;
+            return this;
+        }
+
+        public SiparisBuilder hediyePaketiYap(boolean hediyePaketi) {
+            this.hediyePaketi = hediyePaketi;
+            return this;
+        }
+
+        public SiparisBuilder kargoTipi(String kargoTipi) {
+            this.kargoTipi = kargoTipi;
+            return this;
+        }
+
+        public Siparis build() {
+            return new Siparis(this);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Sipariş Özeti:\n" +
+               "- Ürünler: " + urunler + "\n" +
+               "- Adres: " + teslimatAdresi + "\n" +
+               "- Ödeme: " + odemeYontemi + "\n" +
+               "- Kargo: " + kargoTipi + "\n" +
+               "- Hediye mi?: " + (hediyePaketi ? "Evet" : "Hayır");
+    }
+
+    // DÜZELTME: Main metodu sınıfın içine taşındı
+    public static void main(String[] args) {
+        // Örnek 1: Temel Sipariş
+        Siparis temelSiparis = new Siparis.SiparisBuilder(
+            Arrays.asList("Kitap", "Kalem"), 
+            "İstanbul/Beşiktaş", 
+            "Kredi Kartı"
+        ).build();
+
+        // Örnek 2: Full Sipariş
+        Siparis fullSiparis = new Siparis.SiparisBuilder(
+            Arrays.asList("Laptop", "Mouse"),"Ankara/Çankaya","Havale")
+            .faturaAdresi("Şirket Adresi Ltd. Şti.")
+            .indirimKuponu("YAZ2024")
+            .siparisNotu("Zili çalmayın.")
+            .hediyePaketiYap(true)
+            .kargoTipi("Hızlı Kargo")
+            .build();
+
+        System.out.println(temelSiparis);
+        System.out.println("--------------------");
+        System.out.println(fullSiparis);
+    }
+}
