@@ -1,0 +1,68 @@
+import java.util.Scanner;
+
+public class KullaniciGirisliEnBuyukBulma {
+
+    /**
+     * Kendisine gönderilen tek boyutlu bir integer dizisinin en büyük elemanını bulup
+     * ekrana yazdıran metot.
+     *
+     * @param dizi İçinde en büyük elemanın aranacağı tam sayı dizisi.
+     */
+    public static void enBuyukElemaniBulVeYazdir(int[] dizi) {
+        // Dizinin boş veya geçersiz olup olmadığını kontrol et.
+        if (dizi == null || dizi.length == 0) {
+            System.out.println("Dizi boş veya geçersiz. İşlem yapılamadı.");
+            return; // Metodu sonlandır.
+        }
+
+        // Dizinin ilk elemanını geçici olarak en büyük sayı olarak ata.
+        int enBuyuk = dizi[0];
+
+        // Dizinin ikinci elemanından başlayarak tüm elemanları döngü ile gez.
+        for (int i = 1; i < dizi.length; i++) {
+            // Eğer döngüdeki mevcut eleman, o anki en büyük sayıdan daha büyükse,
+            // enBuyuk değişkenini bu yeni değerle güncelle.
+            if (dizi[i] > enBuyuk) {
+                enBuyuk = dizi[i];
+            }
+        }
+
+        // Döngü bittikten sonra bulunan en büyük sayıyı ekrana yazdır.
+        System.out.println("\n------------------------------------");
+        System.out.println("Girdiğiniz sayılar arasındaki en büyük eleman: " + enBuyuk);
+    }
+
+    /**
+     * Ana metot (main): Kullanıcıdan değerleri alır ve işlemi başlatır.
+     */
+    public static void main(String[] args) {
+        // 1. Adım: Kullanıcıdan veri almak için Scanner nesnesi oluştur.
+        Scanner klavye = new Scanner(System.in);
+
+        // 2. Adım: Kullanıcıya kaç sayı gireceğini sor.
+        System.out.print("Kaç adet sayı gireceksiniz? ");
+        int adet = klavye.nextInt();
+
+        // Girilen adetin geçerli olup olmadığını kontrol et.
+        if (adet <= 0) {
+            System.out.println("Lütfen 0'dan büyük bir sayı giriniz.");
+        } else {
+            // 3. Adım: Kullanıcının belirttiği boyutta bir dizi oluştur.
+            int[] sayilar = new int[adet];
+
+            System.out.println("Lütfen " + adet + " adet tam sayı giriniz:");
+
+            // 4. Adım: Döngü ile kullanıcının girdiği sayıları diziye ata.
+            for (int i = 0; i < sayilar.length; i++) {
+                System.out.print((i + 1) + ". sayıyı girin: ");
+                sayilar[i] = klavye.nextInt();
+            }
+
+            // 5. Adım: Kullanıcının oluşturduğu diziyi metota göndererek en büyük sayıyı buldur.
+            enBuyukElemaniBulVeYazdir(sayilar);
+        }
+
+        // 6. Adım: Kaynak sızıntısını önlemek için Scanner nesnesini kapat.
+        klavye.close();
+    }
+}
