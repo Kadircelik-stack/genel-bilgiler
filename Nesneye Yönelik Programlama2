@@ -1,0 +1,60 @@
+#include <iostream>
+#include <vector>
+void yigin(int dizi[], int n, int i) {
+    int enBuyuk = i;
+    int sol = 2 * i + 1;
+    int sag = 2 * i + 2; 
+   
+    if (sol < n && dizi[sol] > dizi[enBuyuk])
+        enBuyuk = sol;
+
+   
+    if (sag < n && dizi[sag] > dizi[enBuyuk])
+        enBuyuk = sag;
+
+   
+    if (enBuyuk != i) {
+        std::swap(dizi[i], dizi[enBuyuk]);
+
+        
+        yigin(dizi, n, enBuyuk);
+    }
+}
+
+
+void yiginSiralama(int dizi[], int n) {
+    
+    for (int i = n / 2 - 1; i >= 0; i--)
+       yigin(dizi, n, i);
+
+   
+    for (int i = n - 1; i > 0; i--) {
+       
+        std::swap(dizi[0], dizi[i]);
+
+        
+       yigin(dizi, i, 0);
+    }
+}
+
+void diziyiYazdir(int dizi[], int n) {
+    for (int i = 0; i < n; ++i)
+        std::cout << dizi[i] << " " << std::endl;;
+   
+}
+
+int main() {
+    int dizi[] = {52,27,5,86,45};
+    int n = sizeof(dizi) / sizeof(dizi[0]);
+
+    std::cout << "Orijinal Dizi:" << std::endl;
+    diziyiYazdir(dizi, n);
+
+   yiginSiralama(dizi, n);
+    std::cout << std::endl;
+
+    std::cout << "\nSiralanmis Dizi (Heap Sort):" << std::endl;
+    diziyiYazdir(dizi, n);
+
+    return 0;
+}
