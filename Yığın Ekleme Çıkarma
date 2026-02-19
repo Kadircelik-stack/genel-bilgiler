@@ -1,0 +1,267 @@
+#include <iostream>
+
+using namespace std;
+
+class Yigin; // Yigin sınıfının Dizi'ye friend olabilmesi için önden bildirim (forward declaration)
+
+// --- DİZİ (ARRAY) SINIFI ---
+// [cite: 1] uyarınca tamsayı dizilerini modeller.
+class Dizi {
+private:
+    int* data;              // Tamsayı işaretçisi [cite: 2]
+    unsigned int kullanilabilir; // Kullanıma müsait alan sayısı [cite: 2]
+    unsigned int boyut;          // Dizinin toplam boyutu
+
+    // Yigin sınıfının, 'kullanilabilir' değişkene doğrudan erişmesi için
+    // friend olarak tanımlanması, 'pop' ve 'push' işlemlerini kolaylaştırır.
+    friend class Yigin;
+
+public:
+    // Yapıcı (Constructor): Verilen büyüklükte bir dizi oluşturur [cite: 3]
+    Dizi(unsigned int sz) {
+        boyut = sz;
+        kullanilabilir = sz; // Başlangıçta tüm alanlar müsait
+        data = new int[boyut];
+        cout << "Dizi yapicisi (" << boyut << " elemanli) cagirildi." << endl;
+    }
+
+    // Yıkıcı (Destructor) [cite: 3]
+    ~Dizi() {
+        cout << "Dizi yikicisi (" << boyut << " elemanli) cagirildi." << endl;
+        delete[] data;
+    }
+
+    // Kopya Yapıcısı (Copy Constructor) [cite: 3]
+    Dizi(const Dizi& other) {
+        boyut = other.boyut;
+        kullanilabilir = other.kullanilabilir;
+        data = new int[boyut]; // Yeni bir bellek alanı ayır
+
+        // Verileri kopyala
+        for (unsigned int i = 0; i < boyut; i++) {
+            data[i] = other.data[i];
+        }
+        cout << "Dizi *kopya yapicisi* cagirildi." << endl;
+    }
+
+    // Atama Operatörü (Assignment Operator) 
+    // Zincirleme atamayı (a=b=c) destekler
+    Dizi& operator=(const Dizi& other) {
+        cout << "Dizi *atama operatoru* cagirildi." << endl;
+        // 1. Kendi kendine atamayı kontrol et (a = a)
+        if (this == &other) {
+            return *this;
+        }
+
+        // 2. Mevcut veriyi temizle
+        delete[] data;
+
+        // 3. Yeni veriyi kopyala (Kopya yapıcısındaki gibi)
+        boyut = other.boyut;
+        kullanilabilir = other.kullanilabilir;
+        data = new int[boyut];
+        for (unsigned int i = 0; i < boyut; i++) {
+            data[i] = other.data[i];
+        }
+
+        // 4. Zincirleme için *this referansını döndür 
+        return *this;
+    }
+
+    // Karşılaştırma Operatörü (<)
+    // İki nesnedeki boş alanları karşılaştırır ve farkı döner [cite: 5]
+    int operator<(const Dizi& other) {
+        // Negatifse, ilk dizinin daha az alanı var demektir [cite: 6, 7]
+        return (int)this->kullanilabilir - (int)other.kullanilabilir;
+    }
+
+    // write: Verilen pozisyona eleman ekler [cite: 9, 10]
+    // Not: Bu fonksiyon 'kullanilabilir' sayısını DEĞİŞTİRMEZ.
+    // Bu yönetimi Yigin sınıfı yapacaktır.
+    void yaz(int pos, int val) {
+        if (pos >= 0 && pos < boyut) {
+            data[pos] = val;
+        }
+    }
+
+    // read: Verilen pozisyondaki elemanı okur [cite: 11]
+    // Not: 'deki kural (alanın müsait hale gelmesi)
+    // Yigin sınıfının 'pop' metodu tarafından yönetilecektir.
+    int oku(int pos) {
+        if (pos >= 0 && pos < boyut) {
+            return data[pos];
+        }
+        return 0; // Hata durumu (veya varsayılan)
+    }
+
+    // empty: Diziyi boşaltır [cite: 13]
+    // Boşaltmak, tüm alanların tekrar 'müsait' hale gelmesi demektir.
+    void bosalt() {
+        kullanilabilir = boyut;
+        cout << "Dizi bosaltildi (Müsait alan: " << kullanilabilir << ")" << endl;
+    }
+};
+
+// --- YIĞIN (STACK) SINIFI ---
+// [cite: 14] uyarınca yığınları modeller ve Dizi sınıfını kullanır.
+class Yigin {
+private:
+    Dizi* dizi; // Elemanları saklamak için Dizi sınıfından bir nesne (işaretçi olarak) [cite: 14]
+    int top;    // Yığının en üstünü gösteren indeks
+
+public:
+    // Yapıcı: Verilen büyüklükte boş bir yığın oluşturur [cite: 15]
+    Yigin(unsigned int boyut) {
+        dizi = new Dizi(boyut);
+        top = -1; // Yığın boş
+        cout << "Yigin yapicisi cagirildi." << endl;
+    }
+
+    // Yıkıcı [cite: 15]
+    ~Yigin() {
+        delete dizi; // Ayrılan Dizi nesnesini serbest bırak
+        cout << "Yigin yikicisi cagirildi." << endl;
+    }
+
+    // Kopya Yapıcısı [cite: 15]
+    Yigin(const Yigin& other) {
+        top = other.top;
+        // Dizi'nin kopya yapıcısını kullanarak derin kopyalama (deep copy) yapılır
+        dizi = new Dizi(*other.dizi);
+        cout << "Yigin *kopya yapicisi* cagirildi." << endl;
+    }
+
+    // Atama Operatörü: Zincirleme atamayı (a=b=c) destekler [cite: 16]
+    Yigin& operator=(const Yigin& other) {
+        cout << "Yigin *atama operatoru* cagirildi." << endl;
+        if (this == &other) {
+            return *this;
+        }
+
+        // Mevcut Dizi'yi sil
+        delete dizi;
+
+        // Diğer yığının Dizi'sini kopyala (Dizi'nin kopya yapıcısı çağrılır)
+        top = other.top;
+        dizi = new Dizi(*other.dizi);
+
+        return *this;
+    }
+
+    // Karşılaştırma Operatörü (<) [cite: 17]
+    // İki yığındaki müsait alanları karşılaştırır [cite: 18]
+    int operator<(Yigin& other) {
+        // Dizi sınıfı için tanımladığımız < operatörünü yeniden kullanırız
+        return *dizi < *other.dizi;
+    }
+
+    // push: Yığına eleman ekler [cite: 20]
+    int push(int val) {
+        // Yığın dolu mu? (top, son indekste mi?)
+        if (top >= (int)dizi->boyut - 1) {
+            cout << "Yigin Dolu! " << val << " eklenemedi." << endl;
+            return 0; // Doluysa 0 döner [cite: 20]
+        }
+
+        // Yığın dolu değilse:
+        top++;                // Üst indeksi artır
+        dizi->yaz(top, val);  // Yeni pozisyona yaz [cite: 9]
+        dizi->kullanilabilir--; // Müsait alanı 1 azalt
+        cout << val << " yigina eklendi. (Müsait alan: " << dizi->kullanilabilir << ")" << endl;
+        return 1; // Başarılıysa 1 döner [cite: 20]
+    }
+
+    // pop: Yığının en üstündeki elemanı döner [cite: 21]
+    int pop() {
+        // Yığın boş mu?
+        if (top == -1) {
+            cout << "Yigin Bos! Eleman cekilemedi." << endl;
+            return 0; // Boşsa 0 döner [cite: 21]
+        }
+
+        // Yığın boş değilse:
+        int val = dizi->oku(top); // Üstteki elemanı oku [cite: 11]
+
+        //  uyarınca: Okunan elemanın bulunduğu alan müsait hale gelir
+        dizi->kullanilabilir++;
+
+        top--; // Üst indeksi azalt
+        cout << val << " yigindan cikarildi. (Müsait alan: " << dizi->kullanilabilir << ")" << endl;
+        return val;
+    }
+
+    // emptyStack: Yığını boşaltır [cite: 22]
+    void emptyStack() {
+        dizi->bosalt(); // Dizi'nin 'bosalt' metodunu çağırır
+        top = -1;       // Yığın indeksini sıfırlar
+        cout << "Yigin bosaltildi." << endl;
+    }
+
+    // --- Main'de kullanılacak yardımcı fonksiyonlar ---
+
+    // Yığının boş olup olmadığını kontrol eder
+    bool isEmpty() const {
+        return top == -1;
+    }
+
+    // Yığının mevcut boş alan sayısını döndürür
+    unsigned int getKullanilabilirAlan() const {
+        return dizi->kullanilabilir;
+    }
+};
+
+// --- ANA (MAIN) FONKSİYON ---
+int main() {
+    // 15 elemanlık iki yığın oluştur [cite: 23]
+    cout << "--- Yigin 1 Olusturuluyor ---" << endl;
+    Yigin yigin1(15);
+    cout << "\n--- Yigin 2 Olusturuluyor ---" << endl;
+    Yigin yigin2(15);
+    cout << "------------------------------" << endl;
+
+    // Yığınlara birkaç eleman ekle [cite: 23]
+    cout << "\n--- Yigin 1'e Eleman Ekleme ---" << endl;
+    yigin1.push(10);
+    yigin1.push(20);
+    yigin1.push(30);
+    yigin1.push(40);
+
+    cout << "\n--- Yigin 2'ye Eleman Ekleme ---" << endl;
+    yigin2.push(5);
+    yigin2.push(15);
+
+    cout << "------------------------------" << endl;
+    cout << "Yigin 1 Müsait Alan: " << yigin1.getKullanilabilirAlan() << endl;
+    cout << "Yigin 2 Müsait Alan: " << yigin2.getKullanilabilirAlan() << endl;
+
+    // Yığınları karşılaştır [cite: 24, 25]
+    int fark = yigin1 < yigin2;
+
+    cout << "\n--- Karsilastirma Sonucu (Fark: " << fark << ") ---" << endl;
+
+    if (fark < 0) {
+        // yigin1'in daha az boş alanı var [cite: 6, 24]
+        cout << "Yigin 1'in daha az bos alani var. Yigin 1'in elemanlari:" << endl;
+        while (!yigin1.isEmpty()) {
+            // Not: pop() fonksiyonu zaten değeri yazdırıyor
+            yigin1.pop();
+        }
+    }
+    else if (fark > 0) {
+        // yigin2'nin daha az boş alanı var
+        cout << "Yigin 2'nin daha az bos alani var. Yigin 2'nin elemanlari:" << endl;
+        while (!yigin2.isEmpty()) {
+            yigin2.pop();
+        }
+    }
+    else {
+        // Boş alanlar eşit [cite: 25]
+        cout << "Her iki yiginin da musait alan sayisi esit." << endl;
+        if (yigin1.getKullanilabilirAlan() == 15) { // Başlangıç boyutu 15 olduğu için
+            cout << "(Her iki yigin da bos ve esit)" << endl;
+        }
+    }
+
+    cout << "\n--- Program Bitiyor ---" << endl;
+    return 0;
+}
