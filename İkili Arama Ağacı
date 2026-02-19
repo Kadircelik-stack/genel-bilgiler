@@ -1,0 +1,45 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int value;
+    Node* left;
+    Node* right;
+    Node(int val) {
+        value = val;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+// Yardımcı fonksiyon: Belirli bir aralıkta olup olmadığını kontrol eder
+bool isBSTUtil(Node* root, int minVal, int maxVal) {
+    if (root == nullptr)
+        return true;
+
+    if (root->value <= minVal || root->value >= maxVal)
+        return false;
+
+    return isBSTUtil(root->left, minVal, root->value) &&
+        isBSTUtil(root->right, root->value, maxVal);
+}
+
+// Asıl isBST fonksiyonu
+bool isBST(Node* root) {
+    return isBSTUtil(root, 1, 101); // Değerler 1-100 arasında olduğundan
+}
+
+int main() {
+    Node* root = new Node(10);
+    root->left = new Node(5);
+    root->right = new Node(15);
+    root->left->left = new Node(2);
+    root->left->right = new Node(7);
+
+    if (isBST(root))
+        cout << "Bu agac bir ikili arama agacidir." << endl;
+    else
+        cout << "Bu agac bir ikili arama agaci degildir." << endl;
+
+    return 0;
+}
