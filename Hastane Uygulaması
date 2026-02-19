@@ -1,0 +1,34 @@
+#include<iostream>
+#include<string>
+using namespace std;
+void hastalar() {
+	string hasta_durumu;
+	string hasta;
+	string hafif[50]{};
+	string orta[50]{};
+	string kritik[50]{};
+};
+enum hastalar(hafif[]), (orta[]), (kritik[]);
+{
+	cout << "Hastanın ismini giriniz:" << endl;
+	cin >> hasta;
+	cout << "Hastanın durumunu belirtiniz." << endl;
+	cout << "Hastanın durumu";
+	cin >> hasta_durumu;
+	if (hasta_durumu == hafif) {
+		cin >> hafif(hasta);
+	}
+	else if (hasta_durumu == orta) {
+		cin >> orta(hasta);
+	}
+	else {
+		cin >> kritik(hasta);
+	}
+};
+#include<iostream>
+int main() {
+	hastalar();
+	return 0;
+}
+
+
